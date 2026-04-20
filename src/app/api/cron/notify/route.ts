@@ -3,10 +3,9 @@ import { Resend } from 'resend'
 import { db } from '@/lib/db'
 import { fetchNewsByKeywords } from '@/lib/news'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
-
-// Called by Vercel cron every 15 minutes
+// Called by Vercel cron every day at 9am
 export async function POST(req: NextRequest) {
+  const resend = new Resend(process.env.RESEND_API_KEY)
   const authHeader = req.headers.get('authorization')
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })

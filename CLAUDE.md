@@ -1,5 +1,23 @@
 @AGENTS.md
 
+## ⚠ INVOKE THESE SKILLS FIRST — NO EXCEPTIONS
+
+Before writing any code, invoke the relevant skill. No rationalizing, no skipping.
+
+| Task | Skill to invoke FIRST |
+|------|----------------------|
+| Any UI component or page | `/ui-ux-pro-max:ui-ux-pro-max` |
+| Any Next.js code (routes, pages, config) | `/everything-claude-code:nextjs-turbopack` |
+| Any API route | `/everything-claude-code:security-review` + `/everything-claude-code:api-design` |
+| Any Supabase query or migration | `/everything-claude-code:postgres-patterns` |
+| Any new feature | `/everything-claude-code:tdd-guide` |
+| Any TypeScript types or interfaces | `/everything-claude-code:typescript-reviewer` |
+| Before any PR | `/pr-review-toolkit:code-reviewer` then `/pr-review-toolkit:silent-failure-hunter` |
+| Unfamiliar library or API | `/everything-claude-code:docs-lookup` |
+| Starting a new session | `/graphify . --update` |
+
+---
+
 ## Backend Patterns
 
 Use `/everything-claude-code:api-design` and `/everything-claude-code:backend-patterns` skills for all API/backend work:
@@ -63,8 +81,6 @@ Use `/ui-ux-pro-max:ui-ux-pro-max` when building UI components — query it for:
 Use `/everything-claude-code:architecture-decision-records` to document WHY decisions were made:
 - Triggered when choosing between significant alternatives (framework, pattern, DB design)
 - ADRs live in `docs/adr/` — check there first when asking "why did we choose X?"
-- Record decisions for: LMSR vs parimutuel, Next.js monolith, Supabase, auth strategy
-- Already made decisions should be backfilled as ADRs in Phase 1
 
 ## Documentation
 

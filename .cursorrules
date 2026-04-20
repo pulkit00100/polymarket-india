@@ -1,0 +1,9 @@
+# Polymarket India — Cursor rules
+Follow `AGENTS.md` as the source of truth.
+
+- App Router: `src/app/`
+- API routes: `src/app/api/**/route.ts`
+- Skill router: `CODEX.md`
+- Skills live in `.agents/skills/` (mirrors your Claude harness).
+- Server-only Supabase client: `src/lib/db.ts` (never import into `"use client"` code)
+- Before PRs: `npm run lint` then `npm test`
