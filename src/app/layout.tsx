@@ -8,8 +8,17 @@ export const metadata: Metadata = {
   title: 'Polymarket India — Predict. Profit.',
   description: "India's first prediction market platform. Bet on news events with virtual coins.",
   manifest: '/manifest.json',
-  themeColor: '#09090b',
+  themeColor: '#f59e0b',
   viewport: 'width=device-width, initial-scale=1, viewport-fit=cover',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'PM India',
+  },
+  icons: {
+    icon: '/icon.svg',
+    apple: '/icon.svg',
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
