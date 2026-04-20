@@ -11,6 +11,8 @@ interface BetFormProps {
   onSuccess?: () => void
 }
 
+const QUICK_AMOUNTS = [50, 100, 250, 500]
+
 export function BetForm({ marketId, yesPrice, userPoints, onSuccess }: BetFormProps) {
   const { data: session } = useSession()
   const router = useRouter()
@@ -18,17 +20,20 @@ export function BetForm({ marketId, yesPrice, userPoints, onSuccess }: BetFormPr
   const [points, setPoints] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState(false)
 
   const price = position === 'yes' ? yesPrice : 1 - yesPrice
-  const estimatedShares = points ? (parseFloat(points) / price).toFixed(2) : '—'
+  const amount = parseFloat(points) || 0
+  const estimatedShares = amount > 0 ? (amount / price).toFixed(1) : '—'
+  const potentialPayout = amount > 0 ? (amount / price).toFixed(0) : '—'
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!session) { router.push('/api/auth/signin'); return }
 
-    const amount = parseInt(points, 10)
-    if (isNaN(amount) || amount < 10) { setError('Minimum bet is 10 points'); return }
-    if (amount > userPoints) { setError('Not enough points'); return }
+    const amt = parseInt(points, 10)
+    if (isNaN(amt) || amt < 10) { setError('Minimum bet is 10 points'); return }
+    if (amt > userPoints) { setError('Not enough points'); return }
 
     setLoading(true)
     setError('')
@@ -37,7 +42,7 @@ export function BetForm({ marketId, yesPrice, userPoints, onSuccess }: BetFormPr
       const res = await fetch(`/api/markets/${marketId}/bet`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ position, points: amount }),
+        body: JSON.stringify({ position, points: amt }),
       })
 
       if (!res.ok) {
@@ -46,7 +51,9 @@ export function BetForm({ marketId, yesPrice, userPoints, onSuccess }: BetFormPr
         return
       }
 
+      setSuccess(true)
       setPoints('')
+      setTimeout(() => setSuccess(false), 2000)
       onSuccess?.()
       router.refresh()
     } finally {
@@ -55,59 +62,116 @@ export function BetForm({ marketId, yesPrice, userPoints, onSuccess }: BetFormPr
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-slate-800/60 border border-slate-700 rounded-xl p-5 space-y-4">
-      <h3 className="text-sm font-semibold text-slate-200">Place a bet</h3>
-
-      {/* Position selector */}
-      <div className="grid grid-cols-2 gap-2">
-        {(['yes', 'no'] as const).map((pos) => {
-          const p = pos === 'yes' ? yesPrice : 1 - yesPrice
-          return (
-            <button
-              key={pos}
-              type="button"
-              onClick={() => setPosition(pos)}
-              className={`py-2.5 rounded-lg text-sm font-semibold font-mono transition-all ${
-                position === pos
-                  ? pos === 'yes'
-                    ? 'bg-emerald-500 text-white'
-                    : 'bg-rose-500 text-white'
-                  : 'bg-slate-700 text-slate-400 hover:bg-slate-600'
-              }`}
-            >
-              {pos.toUpperCase()} · {Math.round(p * 100)}¢
-            </button>
-          )
-        })}
-      </div>
-
-      {/* Amount input */}
-      <div>
-        <label className="text-xs text-slate-400 mb-1 block">Points to wager</label>
-        <input
-          type="number"
-          min={10}
-          max={userPoints}
-          value={points}
-          onChange={(e) => setPoints(e.target.value)}
-          placeholder="Min 10"
-          className="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2.5 text-sm font-mono text-slate-100 focus:outline-none focus:border-amber-500"
-        />
-        <p className="text-xs text-slate-500 mt-1">
-          Balance: <span className="font-mono text-amber-400">{userPoints.toLocaleString()} pts</span>
-          {' · '}Est. shares: <span className="font-mono">{estimatedShares}</span>
+    <div className="rounded-2xl border overflow-hidden" style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}>
+      <div className="px-5 py-4 border-b" style={{ borderColor: 'var(--border)' }}>
+        <p className="text-sm font-semibold" style={{ color: 'var(--text)' }}>Place a Bet</p>
+        <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
+          Balance: <span className="font-mono font-semibold" style={{ color: 'var(--primary)' }}>{userPoints.toLocaleString()} pts</span>
         </p>
       </div>
 
-      {error && <p className="text-xs text-rose-400">{error}</p>}
+      <form onSubmit={handleSubmit} className="p-5 space-y-4">
+        {/* YES / NO toggle */}
+        <div className="grid grid-cols-2 gap-2 p-1 rounded-xl" style={{ background: 'var(--bg-elevated)' }}>
+          {(['yes', 'no'] as const).map((pos) => {
+            const p = pos === 'yes' ? yesPrice : 1 - yesPrice
+            const active = position === pos
+            const col = pos === 'yes' ? 'var(--green)' : 'var(--red)'
+            return (
+              <button
+                key={pos}
+                type="button"
+                onClick={() => setPosition(pos)}
+                className="py-3 rounded-lg text-sm font-bold transition-all"
+                style={{
+                  background: active ? col : 'transparent',
+                  color: active ? '#fff' : 'var(--text-muted)',
+                  boxShadow: active ? '0 2px 8px rgba(0,0,0,0.25)' : 'none',
+                }}
+              >
+                {pos.toUpperCase()}
+                <span className="ml-1.5 text-xs font-mono opacity-80">{Math.round(p * 100)}¢</span>
+              </button>
+            )
+          })}
+        </div>
 
-      <button
-        type="submit"
-        disabled={loading || !points}
-        className="w-full py-2.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-900 font-semibold text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        {loading ? 'Placing…' : `Bet ${points || '—'} pts on ${position.toUpperCase()}`}
-      </button>
-    </form>
+        {/* Quick amounts */}
+        <div>
+          <p className="text-xs mb-2" style={{ color: 'var(--text-muted)' }}>Quick select</p>
+          <div className="grid grid-cols-4 gap-2">
+            {QUICK_AMOUNTS.map(q => (
+              <button
+                key={q}
+                type="button"
+                onClick={() => setPoints(String(q))}
+                className="py-1.5 rounded-lg text-xs font-mono font-medium transition-colors"
+                style={{
+                  background: points === String(q) ? 'var(--primary-dim)' : 'var(--bg-elevated)',
+                  color: points === String(q) ? 'var(--primary)' : 'var(--text-muted)',
+                  border: `1px solid ${points === String(q) ? 'var(--primary)' : 'var(--border)'}`,
+                }}
+              >
+                {q}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Amount input */}
+        <div>
+          <p className="text-xs mb-1.5" style={{ color: 'var(--text-muted)' }}>Or enter amount</p>
+          <input
+            type="number"
+            inputMode="numeric"
+            min={10}
+            max={userPoints}
+            value={points}
+            onChange={(e) => setPoints(e.target.value)}
+            placeholder="Min 10 pts"
+            className="w-full rounded-xl px-4 py-3 text-sm font-mono transition-colors focus:outline-none"
+            style={{
+              background: 'var(--bg-elevated)',
+              border: '1px solid var(--border)',
+              color: 'var(--text)',
+            }}
+          />
+        </div>
+
+        {/* Payout estimate */}
+        {amount > 0 && (
+          <div className="rounded-xl p-3 space-y-1.5" style={{ background: 'var(--bg-elevated)' }}>
+            <div className="flex justify-between text-xs">
+              <span style={{ color: 'var(--text-muted)' }}>Est. shares</span>
+              <span className="font-mono" style={{ color: 'var(--text)' }}>{estimatedShares}</span>
+            </div>
+            <div className="flex justify-between text-xs">
+              <span style={{ color: 'var(--text-muted)' }}>If {position.toUpperCase()} wins</span>
+              <span className="font-mono font-semibold" style={{ color: position === 'yes' ? 'var(--green)' : 'var(--red)' }}>
+                +{potentialPayout} pts
+              </span>
+            </div>
+          </div>
+        )}
+
+        {error && (
+          <p className="text-xs px-3 py-2 rounded-lg" style={{ background: 'rgba(239,68,68,0.1)', color: 'var(--red)' }}>
+            {error}
+          </p>
+        )}
+
+        <button
+          type="submit"
+          disabled={loading || !points || success}
+          className="w-full py-3 rounded-xl font-bold text-sm transition-all active:scale-[0.98] disabled:opacity-50"
+          style={{
+            background: success ? 'var(--green)' : 'var(--primary)',
+            color: '#09090b',
+          }}
+        >
+          {success ? '✓ Bet placed!' : loading ? 'Placing…' : `Bet ${amount > 0 ? `${amount} pts` : '—'} on ${position.toUpperCase()}`}
+        </button>
+      </form>
+    </div>
   )
 }
