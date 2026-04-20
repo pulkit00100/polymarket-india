@@ -18,6 +18,46 @@ Use `/everything-claude-code:frontend-patterns` skill for all React/Next.js comp
 - Controlled forms with validation
 - Error boundaries around page-level components
 
+## PR Review
+
+Before every PR, run in this order:
+1. `/pr-review-toolkit:code-reviewer` — code quality against project guidelines
+2. `/pr-review-toolkit:silent-failure-hunter` — catch swallowed errors in API routes
+Then `gh pr create`
+
+## Security
+
+Use `/everything-claude-code:security-review` when:
+- Writing any API route that handles user input
+- Touching auth, sessions, or the bet placement flow
+- Before every PR that touches `src/app/api/`
+
+## Deployment
+
+Use `/everything-claude-code:deployment-patterns` when:
+- Setting up Vercel config, env vars, or cron jobs
+- Switching hosting providers
+
+Use `/everything-claude-code:docker-patterns` if moving off Vercel to Railway/Fly.io.
+
+## Next.js Patterns
+
+Use `/everything-claude-code:nextjs-turbopack` for Next.js 16 specific patterns —
+AGENTS.md warns this version has breaking changes, this skill has current patterns.
+
+## PostgreSQL / Supabase
+
+Use `/everything-claude-code:postgres-patterns` for:
+- Complex queries (leaderboard, bet history joins)
+- Index optimization
+- Supabase RPC for atomic bet placement transaction
+
+## Design System
+
+Use `/ui-ux-pro-max:ui-ux-pro-max` when building UI components — query it for:
+- Component patterns matching the dark fintech mockup
+- Color, typography, spacing decisions
+
 ## Architecture Decisions
 
 Use `/everything-claude-code:architecture-decision-records` to document WHY decisions were made:
