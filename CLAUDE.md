@@ -64,7 +64,7 @@ Use `/graphify` skill to build/update the knowledge graph when:
 
 ## Design Reference
 
-Match styles from `/Users/pulkitji/Desktop/brainstorm-session/.superpowers/brainstorm/47173-1776523692/content/mockup-home-v2.html`:
+Match styles from `/Users/pulkitji/Desktop/brainstorm-session/.superpowers/brainstorm/47173-1776523692/content/mockup-home-v2.html` (mockup lives in brainstorm-session, spec+plan in `docs/superpowers/`):
 - Background: `#0F172A`, Primary: `#F59E0B`, Accent: `#8B5CF6`
 - Fonts: Fira Code (numbers/mono), Fira Sans (body)
 - Dark fintech aesthetic
