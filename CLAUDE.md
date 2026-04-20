@@ -6,7 +6,7 @@ Before writing any code, invoke the relevant skill. No rationalizing, no skippin
 
 | Task | Skill to invoke FIRST |
 |------|----------------------|
-| Any UI component or page | `/ui-ux-pro-max:ui-ux-pro-max` |
+| Any UI component or page | `ui-ux-pro-max` skill is a CLI tool — run: `python3 ~/.claude/plugins/cache/ui-ux-pro-max-skill/ui-ux-pro-max/2.5.0/src/ui-ux-pro-max/scripts/search.py "<query>" --stack nextjs` |
 | Any Next.js code (routes, pages, config) | `/everything-claude-code:nextjs-turbopack` |
 | Any API route | `/everything-claude-code:security-review` + `/everything-claude-code:api-design` |
 | Any Supabase query or migration | `/everything-claude-code:postgres-patterns` |

@@ -1,4 +1,11 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next'
+// @ts-ignore — next-pwa has no official TS types
+const withPWA = require('next-pwa')({
+  dest: 'public',
+  disable: process.env.NODE_ENV === 'development',
+  register: true,
+  skipWaiting: true,
+})
 
 const nextConfig: NextConfig = {
   images: {
@@ -6,6 +13,6 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: 'lh3.googleusercontent.com' },
     ],
   },
-};
+}
 
-export default nextConfig;
+module.exports = withPWA(nextConfig)
