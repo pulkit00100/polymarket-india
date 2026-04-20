@@ -21,6 +21,12 @@ async function getMarket(id: string) {
   return data
 }
 
+const CATEGORY_COLORS: Record<string, string> = {
+  politics: '#f97316',
+  sports: '#3b82f6',
+  finance: '#22c55e',
+}
+
 export default async function MarketPage({ params }: Props) {
   const { id } = await params
   const [market, session] = await Promise.all([
@@ -31,65 +37,75 @@ export default async function MarketPage({ params }: Props) {
   if (!market) notFound()
 
   const yesPrice = market.market_state?.yes_probability ?? 0.5
+  const pct = Math.round(yesPrice * 100)
   const isOpen = market.status === 'open'
+  const positive = yesPrice >= 0.5
+  const catColor = CATEGORY_COLORS[market.category] ?? 'var(--accent)'
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
+    <div className="max-w-2xl mx-auto px-4 py-6">
       {/* Header */}
-      <div className="mb-6">
-        <span className="text-xs font-medium text-violet-400 bg-violet-400/10 px-2 py-0.5 rounded-full uppercase tracking-wide">
+      <div className="mb-5">
+        <span
+          className="text-[10px] font-semibold uppercase tracking-widest px-2 py-0.5 rounded-full"
+          style={{ color: catColor, background: `${catColor}18` }}
+        >
           {market.category}
         </span>
-        <h1 className="text-2xl font-bold text-white mt-2 mb-1">{market.title}</h1>
-        <p className="text-slate-400 text-sm">{market.description}</p>
-        <p className="text-xs text-slate-500 mt-2 font-mono">
+        <h1 className="text-xl font-bold mt-2 mb-2 leading-snug" style={{ color: 'var(--text)' }}>
+          {market.title}
+        </h1>
+        <p className="text-sm leading-relaxed mb-1" style={{ color: 'var(--text-muted)' }}>
+          {market.description}
+        </p>
+        <p className="text-xs font-mono" style={{ color: 'var(--text-subtle)' }}>
           Resolves {new Date(market.resolve_at).toLocaleDateString('en-IN', { dateStyle: 'long' })}
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Left: odds + bet form */}
-        <div className="md:col-span-2 space-y-4">
-          {/* Odds display */}
-          <div className="bg-slate-800/60 border border-slate-700 rounded-xl p-5">
-            <div className="flex justify-between items-center mb-3">
-              <span className="text-sm text-slate-400">Current probability</span>
-              <span className="font-mono text-2xl font-bold text-amber-400">
-                {Math.round(yesPrice * 100)}%
-              </span>
-            </div>
-            <OddsBar yesPrice={yesPrice} />
-            <div className="flex justify-between mt-2 text-xs font-mono text-slate-400">
-              <span className="text-emerald-400">{Math.round(yesPrice * 100)}¢ YES</span>
-              <span className="text-rose-400">{Math.round((1 - yesPrice) * 100)}¢ NO</span>
-            </div>
+      {/* Probability card */}
+      <div className="rounded-2xl p-5 mb-4 border" style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}>
+        <div className="flex justify-between items-end mb-3">
+          <div>
+            <p className="text-xs mb-1" style={{ color: 'var(--text-muted)' }}>Current probability</p>
+            <p className="text-4xl font-bold font-mono" style={{ color: positive ? 'var(--green)' : 'var(--red)' }}>
+              {pct}%
+            </p>
           </div>
-
-          {/* Bet form */}
-          {isOpen && (
-            <BetForm
-              marketId={market.id}
-              yesPrice={yesPrice}
-              userPoints={session?.user.points ?? 0}
-            />
-          )}
-
-          {market.status === 'resolved' && (
-            <div className={`p-4 rounded-xl border text-sm font-semibold ${
-              market.outcome
-                ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
-                : 'bg-rose-500/10 border-rose-500/30 text-rose-400'
-            }`}>
-              Resolved: {market.outcome ? 'YES' : 'NO'}
-            </div>
-          )}
+          <p className="text-xs font-mono" style={{ color: 'var(--text-muted)' }}>YES</p>
         </div>
-
-        {/* Right: news feed */}
-        <div>
-          <h2 className="text-sm font-semibold text-slate-300 mb-3">Related News</h2>
-          <NewsFeed marketId={market.id} />
+        <OddsBar yesPrice={yesPrice} />
+        <div className="flex justify-between mt-2 text-xs font-mono">
+          <span style={{ color: 'var(--green)' }}>{pct}¢ YES</span>
+          <span style={{ color: 'var(--red)' }}>{100 - pct}¢ NO</span>
         </div>
+      </div>
+
+      {/* Resolved banner */}
+      {market.status === 'resolved' && (
+        <div
+          className="p-4 rounded-2xl border text-sm font-semibold mb-4"
+          style={{
+            background: market.outcome ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)',
+            borderColor: market.outcome ? 'rgba(34,197,94,0.3)' : 'rgba(239,68,68,0.3)',
+            color: market.outcome ? 'var(--green)' : 'var(--red)',
+          }}
+        >
+          Resolved: {market.outcome ? '✓ YES' : '✗ NO'}
+        </div>
+      )}
+
+      {/* Bet form */}
+      {isOpen && (
+        <div className="mb-6">
+          <BetForm marketId={market.id} yesPrice={yesPrice} userPoints={session?.user.points ?? 0} />
+        </div>
+      )}
+
+      {/* News */}
+      <div>
+        <h2 className="text-sm font-semibold mb-3" style={{ color: 'var(--text)' }}>Related News</h2>
+        <NewsFeed marketId={market.id} />
       </div>
     </div>
   )

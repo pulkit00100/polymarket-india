@@ -18,37 +18,56 @@ export default async function HomePage() {
   const markets = await getFeaturedMarkets()
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-10">
+    <div className="max-w-2xl mx-auto px-4 py-6">
       {/* Hero */}
-      <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold text-white mb-3">
-          Predict the <span className="text-amber-400">future.</span>
-        </h1>
-        <p className="text-slate-400 text-lg max-w-xl mx-auto">
-          India&apos;s first prediction market. Bet virtual coins on real-world events and climb the leaderboard.
+      <div className="mb-8">
+        <p className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: 'var(--primary)' }}>
+          India&apos;s first prediction market
         </p>
-        <div className="flex gap-3 justify-center mt-6">
-          <Link
-            href="/markets/propose"
-            className="px-5 py-2.5 bg-violet-600 hover:bg-violet-500 text-white font-semibold rounded-lg text-sm transition-colors"
-          >
-            Propose a Market
-          </Link>
-          <Link
-            href="/leaderboard"
-            className="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold rounded-lg text-sm transition-colors"
-          >
-            Leaderboard
-          </Link>
-        </div>
+        <h1 className="text-3xl font-bold leading-tight mb-3" style={{ color: 'var(--text)' }}>
+          Predict the future,<br />earn real rewards.
+        </h1>
+        <p className="text-sm leading-relaxed mb-5" style={{ color: 'var(--text-muted)' }}>
+          Bet virtual coins on real-world events. Best predictions climb the leaderboard.
+        </p>
+        <Link
+          href="/markets/propose"
+          className="inline-flex items-center gap-2 text-sm font-semibold px-5 py-2.5 rounded-xl transition-all active:scale-95"
+          style={{ background: 'var(--primary)', color: '#09090b' }}
+        >
+          + Propose a market
+        </Link>
+      </div>
+
+      {/* Stats strip */}
+      <div className="grid grid-cols-3 gap-3 mb-8">
+        {[
+          { label: 'Open Markets', value: markets.length.toString() },
+          { label: 'Avg Pool', value: '₹10k' },
+          { label: 'Active Users', value: '—' },
+        ].map(s => (
+          <div key={s.label} className="rounded-2xl p-3 text-center border" style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}>
+            <p className="text-xl font-bold font-mono" style={{ color: 'var(--primary)' }}>{s.value}</p>
+            <p className="text-[10px] mt-0.5" style={{ color: 'var(--text-muted)' }}>{s.label}</p>
+          </div>
+        ))}
       </div>
 
       {/* Markets grid */}
-      <h2 className="text-lg font-semibold text-slate-200 mb-4">Open Markets</h2>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-base font-semibold" style={{ color: 'var(--text)' }}>Open Markets</h2>
+        <Link href="/markets" className="text-xs font-medium" style={{ color: 'var(--primary)' }}>See all →</Link>
+      </div>
+
       {markets.length === 0 ? (
-        <p className="text-slate-500 text-sm">No open markets yet. Be the first to propose one!</p>
+        <div className="rounded-2xl p-8 text-center border" style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}>
+          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>No open markets yet.</p>
+          <Link href="/markets/propose" className="text-sm font-semibold mt-2 block" style={{ color: 'var(--primary)' }}>
+            Be the first to propose one →
+          </Link>
+        </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {markets.map((m: any) => (
             <MarketCard
               key={m.id}
