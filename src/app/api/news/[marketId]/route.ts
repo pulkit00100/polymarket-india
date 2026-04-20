@@ -2,11 +2,12 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { fetchNewsByKeywords } from '@/lib/news'
 
-export async function GET(req: NextRequest, { params }: { params: { marketId: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ marketId: string }> }) {
+  const { marketId } = await params
   const { data: market } = await db
     .from('markets')
     .select('news_keywords')
-    .eq('id', params.marketId)
+    .eq('id', marketId)
     .single()
 
   if (!market) return NextResponse.json({ error: 'Market not found' }, { status: 404 })
@@ -16,7 +17,7 @@ export async function GET(req: NextRequest, { params }: { params: { marketId: st
   const { data: cached } = await db
     .from('news_cache')
     .select('headline, url, published_at')
-    .eq('market_id', params.marketId)
+    .eq('market_id', marketId)
     .gte('fetched_at', since)
     .order('published_at', { ascending: false })
     .limit(10)
@@ -28,7 +29,7 @@ export async function GET(req: NextRequest, { params }: { params: { marketId: st
 
   if (articles.length > 0) {
     await db.from('news_cache').insert(
-      articles.map((a) => ({ market_id: params.marketId, ...a }))
+      articles.map((a) => ({ market_id: marketId, ...a }))
     )
   }
 

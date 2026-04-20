@@ -4,10 +4,11 @@ import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { probability, sharesForCost } from '@/lib/lmsr'
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions)
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
+  const { id } = await params
   const { position, points_wagered } = await req.json()
 
   if (!['yes', 'no'].includes(position)) {
@@ -20,7 +21,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   const { data: market } = await db
     .from('markets')
     .select('status')
-    .eq('id', params.id)
+    .eq('id', id)
     .single()
 
   if (!market || market.status !== 'open') {
@@ -30,7 +31,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   const { data: state } = await db
     .from('market_state')
     .select('*')
-    .eq('market_id', params.id)
+    .eq('market_id', id)
     .single()
 
   if (!state) return NextResponse.json({ error: 'Market state not found' }, { status: 500 })
@@ -60,13 +61,13 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   await db
     .from('market_state')
     .update({ q_yes: newQYes, q_no: newQNo, yes_probability: newProbability, updated_at: new Date().toISOString() })
-    .eq('market_id', params.id)
+    .eq('market_id', id)
 
   const { data: bet } = await db
     .from('bets')
     .insert({
       user_id: session.user.id,
-      market_id: params.id,
+      market_id: id,
       position,
       points_wagered,
       odds_at_bet: oddsAtBet,
