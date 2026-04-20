@@ -27,7 +27,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-full flex flex-col">
         <Providers>
           <Navbar />
-          <main className="flex-1 bottom-nav-pad">{children}</main>
+          {/* md:pb-0 — remove bottom nav padding on desktop */}
+          <main className="flex-1 pb-20 md:pb-0">{children}</main>
           <BottomNav />
         </Providers>
       </body>

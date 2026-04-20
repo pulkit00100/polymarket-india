@@ -43,16 +43,16 @@ export default async function MarketPage({ params }: Props) {
   const catColor = CATEGORY_COLORS[market.category] ?? 'var(--accent)'
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-6">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
       {/* Header */}
-      <div className="mb-5">
+      <div className="mb-6 max-w-3xl">
         <span
           className="text-[10px] font-semibold uppercase tracking-widest px-2 py-0.5 rounded-full"
           style={{ color: catColor, background: `${catColor}18` }}
         >
           {market.category}
         </span>
-        <h1 className="text-xl font-bold mt-2 mb-2 leading-snug" style={{ color: 'var(--text)' }}>
+        <h1 className="text-xl sm:text-2xl font-bold mt-2 mb-2 leading-snug" style={{ color: 'var(--text)' }}>
           {market.title}
         </h1>
         <p className="text-sm leading-relaxed mb-1" style={{ color: 'var(--text-muted)' }}>
@@ -63,49 +63,52 @@ export default async function MarketPage({ params }: Props) {
         </p>
       </div>
 
-      {/* Probability card */}
-      <div className="rounded-2xl p-5 mb-4 border" style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}>
-        <div className="flex justify-between items-end mb-3">
-          <div>
-            <p className="text-xs mb-1" style={{ color: 'var(--text-muted)' }}>Current probability</p>
-            <p className="text-4xl font-bold font-mono" style={{ color: positive ? 'var(--green)' : 'var(--red)' }}>
-              {pct}%
-            </p>
+      {/* Desktop: side-by-side. Mobile: stacked */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Left col — odds + bet */}
+        <div className="md:col-span-2 space-y-4">
+          {/* Probability card */}
+          <div className="rounded-2xl p-5 border" style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}>
+            <div className="flex justify-between items-end mb-3">
+              <div>
+                <p className="text-xs mb-1" style={{ color: 'var(--text-muted)' }}>Current probability</p>
+                <p className="text-4xl sm:text-5xl font-bold font-mono" style={{ color: positive ? 'var(--green)' : 'var(--red)' }}>
+                  {pct}%
+                </p>
+              </div>
+              <p className="text-sm font-mono font-semibold" style={{ color: 'var(--text-muted)' }}>YES</p>
+            </div>
+            <OddsBar yesPrice={yesPrice} />
+            <div className="flex justify-between mt-2 text-xs font-mono">
+              <span style={{ color: 'var(--green)' }}>{pct}¢ YES</span>
+              <span style={{ color: 'var(--red)' }}>{100 - pct}¢ NO</span>
+            </div>
           </div>
-          <p className="text-xs font-mono" style={{ color: 'var(--text-muted)' }}>YES</p>
-        </div>
-        <OddsBar yesPrice={yesPrice} />
-        <div className="flex justify-between mt-2 text-xs font-mono">
-          <span style={{ color: 'var(--green)' }}>{pct}¢ YES</span>
-          <span style={{ color: 'var(--red)' }}>{100 - pct}¢ NO</span>
-        </div>
-      </div>
 
-      {/* Resolved banner */}
-      {market.status === 'resolved' && (
-        <div
-          className="p-4 rounded-2xl border text-sm font-semibold mb-4"
-          style={{
-            background: market.outcome ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)',
-            borderColor: market.outcome ? 'rgba(34,197,94,0.3)' : 'rgba(239,68,68,0.3)',
-            color: market.outcome ? 'var(--green)' : 'var(--red)',
-          }}
-        >
-          Resolved: {market.outcome ? '✓ YES' : '✗ NO'}
-        </div>
-      )}
+          {/* Resolved banner */}
+          {market.status === 'resolved' && (
+            <div
+              className="p-4 rounded-2xl border text-sm font-semibold"
+              style={{
+                background: market.outcome ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)',
+                borderColor: market.outcome ? 'rgba(34,197,94,0.3)' : 'rgba(239,68,68,0.3)',
+                color: market.outcome ? 'var(--green)' : 'var(--red)',
+              }}
+            >
+              Resolved: {market.outcome ? '✓ YES' : '✗ NO'}
+            </div>
+          )}
 
-      {/* Bet form */}
-      {isOpen && (
-        <div className="mb-6">
-          <BetForm marketId={market.id} yesPrice={yesPrice} userPoints={session?.user.points ?? 0} />
+          {isOpen && (
+            <BetForm marketId={market.id} yesPrice={yesPrice} userPoints={session?.user.points ?? 0} />
+          )}
         </div>
-      )}
 
-      {/* News */}
-      <div>
-        <h2 className="text-sm font-semibold mb-3" style={{ color: 'var(--text)' }}>Related News</h2>
-        <NewsFeed marketId={market.id} />
+        {/* Right col — news */}
+        <div>
+          <h2 className="text-sm font-semibold mb-3" style={{ color: 'var(--text)' }}>Related News</h2>
+          <NewsFeed marketId={market.id} />
+        </div>
       </div>
     </div>
   )

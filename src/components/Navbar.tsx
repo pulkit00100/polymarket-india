@@ -5,6 +5,7 @@ import { useSession, signIn, signOut } from 'next-auth/react'
 import Image from 'next/image'
 import { useTheme } from 'next-themes'
 import { useEffect, useState } from 'react'
+import { usePathname } from 'next/navigation'
 
 function ThemeToggle() {
   const { theme, setTheme } = useTheme()
@@ -34,6 +35,12 @@ function ThemeToggle() {
 
 export function Navbar() {
   const { data: session } = useSession()
+  const pathname = usePathname()
+
+  const navLinks = [
+    { href: '/markets', label: 'Markets' },
+    { href: '/leaderboard', label: 'Leaderboard' },
+  ]
 
   return (
     <nav
@@ -43,9 +50,9 @@ export function Navbar() {
         borderColor: 'var(--border)',
       }}
     >
-      <div className="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-6">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2">
+        <Link href="/" className="flex items-center gap-2 flex-shrink-0">
           <div className="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold" style={{ background: 'var(--primary)', color: '#09090b' }}>
             P
           </div>
@@ -55,29 +62,59 @@ export function Navbar() {
           </span>
         </Link>
 
+        {/* Desktop nav links — hidden on mobile */}
+        <div className="hidden md:flex items-center gap-1 flex-1">
+          {navLinks.map(({ href, label }) => {
+            const active = pathname === href || pathname.startsWith(href)
+            return (
+              <Link
+                key={href}
+                href={href}
+                className="px-3 py-1.5 rounded-lg text-sm font-medium transition-colors"
+                style={{
+                  color: active ? 'var(--primary)' : 'var(--text-muted)',
+                  background: active ? 'var(--primary-dim)' : 'transparent',
+                }}
+              >
+                {label}
+              </Link>
+            )
+          })}
+        </div>
+
         {/* Right side */}
         <div className="flex items-center gap-2">
           <ThemeToggle />
 
           {session ? (
-            <Link href="/profile" className="flex items-center gap-2 pl-1">
-              {session.user.image ? (
-                <Image
-                  src={session.user.image}
-                  alt={session.user.name ?? ''}
-                  width={32}
-                  height={32}
-                  className="rounded-full ring-2 ring-amber-400"
-                />
-              ) : (
-                <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold" style={{ background: 'var(--primary)', color: '#09090b' }}>
-                  {session.user.name?.[0] ?? '?'}
-                </div>
-              )}
-              <span className="text-xs font-mono hidden sm:block" style={{ color: 'var(--primary)' }}>
-                {session.user.points?.toLocaleString()}
+            <div className="flex items-center gap-3">
+              {/* Points — desktop only */}
+              <span className="hidden md:block text-xs font-mono font-semibold" style={{ color: 'var(--primary)' }}>
+                {session.user.points?.toLocaleString()} pts
               </span>
-            </Link>
+              <Link href="/profile" className="flex items-center gap-2">
+                {session.user.image ? (
+                  <Image
+                    src={session.user.image}
+                    alt={session.user.name ?? ''}
+                    width={32}
+                    height={32}
+                    className="rounded-full ring-2 ring-amber-400"
+                  />
+                ) : (
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold" style={{ background: 'var(--primary)', color: '#09090b' }}>
+                    {session.user.name?.[0] ?? '?'}
+                  </div>
+                )}
+              </Link>
+              <button
+                onClick={() => signOut()}
+                className="hidden md:block text-xs transition-colors"
+                style={{ color: 'var(--text-muted)' }}
+              >
+                Sign out
+              </button>
+            </div>
           ) : (
             <button
               onClick={() => signIn('google')}
