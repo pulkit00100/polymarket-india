@@ -64,7 +64,7 @@ export function MarketCard({ id, title, category, yesPrice, endDate, status }: M
   return (
     <Link href={`/markets/${id}`} className="block active:scale-[0.98] transition-transform duration-100">
       <div
-        className="rounded-2xl p-4 border"
+        className="rounded-2xl p-4 border shadow-card hover:border-zinc-600 transition-colors duration-150"
         style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}
       >
         {/* Top row */}
